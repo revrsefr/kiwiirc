@@ -23,6 +23,8 @@
         "key": ""
     },
     "plugins": [
-        { "name": "customise", "url": "static/plugins/customise.html" }
+        { "name": "customise", "url": "static/plugins/customise.html" },
+        { "name": "quiz", "url": "static/plugins/quiz.html" },
+        { "name": "avatars", "url": "static/plugins/Avatars.html" }
     ]
 }

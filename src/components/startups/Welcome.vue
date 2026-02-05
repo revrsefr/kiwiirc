@@ -235,6 +235,7 @@ export default {
     },
     created() {
         let options = this.startupOptions;
+        const showPasswordOverride = this.getShowPasswordQueryOverride();
         let connectOptions = this.connectOptions();
 
         // Take some settings from a previous network if available
@@ -261,6 +262,16 @@ export default {
             this.password = '';
         }
 
+        // Optional URL param override for prompting password
+        // - show_password=true  => showPassword=true,  autoConnect=false
+        // - show_password=false => showPassword=false, autoConnect=true
+        if (showPasswordOverride === true) {
+            this.show_password_box = true;
+        } else if (showPasswordOverride === false) {
+            this.show_password_box = false;
+            this.password = '';
+        }
+
         this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?
             options.showChannel :
@@ -268,9 +279,13 @@ export default {
         this.showNick = typeof options.showNick === 'boolean' ?
             options.showNick :
             true;
-        this.showPass = typeof options.showPassword === 'boolean' ?
-            options.showPassword :
-            true;
+        let showPassVal = true;
+        if (showPasswordOverride !== null) {
+            showPassVal = showPasswordOverride;
+        } else if (typeof options.showPassword === 'boolean') {
+            showPassVal = options.showPassword;
+        }
+        this.showPass = showPassVal;
         this.toggablePass = typeof options.toggablePassword === 'boolean' ?
             options.toggablePassword :
             true;
@@ -293,11 +308,32 @@ export default {
             );
         }
 
-        if (options.autoConnect && this.readyToStart) {
+        const autoConnect = (showPasswordOverride !== null) ?
+            !showPasswordOverride :
+            options.autoConnect;
+
+        if (autoConnect && this.readyToStart) {
             this.startUp();
         }
     },
     methods: {
+        getShowPasswordQueryOverride() {
+            const raw = Misc.queryStringVal('show_password');
+            if (raw === null) {
+                return null;
+            }
+
+            const val = String(raw).trim().toLowerCase();
+            if (val === '' || ['1', 'true', 'yes', 'y', 'on'].includes(val)) {
+                return true;
+            }
+            if (['0', 'false', 'no', 'n', 'off'].includes(val)) {
+                return false;
+            }
+
+            log.warn(`Invalid show_password value: '${raw}'`);
+            return null;
+        },
         onAltClose(event) {
             if (event.channel) {
                 this.channel = event.channel;

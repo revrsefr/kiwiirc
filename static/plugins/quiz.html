@@ -1,0 +1,756 @@
+<style>
+.kiwi-quiz-toggle {
+    background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+    color: #09111a;
+    border: none;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    margin-left: 8px;
+}
+.kiwi-quiz-toggle:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+.kiwi-quiz-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 191, 105, 0.5);
+}
+.kiwi-quiz-overlay {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+    background: radial-gradient(circle at top left, rgba(34, 60, 99, 0.92), rgba(10, 15, 22, 0.98));
+    color: #f4f7ff;
+}
+.kiwi-quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.kiwi-quiz-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+.kiwi-quiz-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+.kiwi-quiz-timer {
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(255, 159, 28, 0.2);
+    color: #ffd8a8;
+    font-weight: 600;
+}
+.kiwi-quiz-close {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: inherit;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.kiwi-quiz-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.kiwi-quiz-banner {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255, 159, 28, 0.18);
+    color: #ffd8a8;
+    font-weight: 600;
+}
+.kiwi-quiz-layout {
+    display: flex;
+    gap: 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.kiwi-quiz-main {
+    flex: 2 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.kiwi-quiz-sidebar {
+    flex: 1 1 0;
+    background: rgba(9, 14, 22, 0.7);
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.kiwi-quiz-sidebar h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+.kiwi-quiz-card {
+    background: rgba(9, 14, 22, 0.65);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 45px rgba(5, 9, 14, 0.4);
+}
+.kiwi-quiz-phase {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 12px;
+}
+.kiwi-quiz-question h3 {
+    margin-top: 0;
+    font-size: 22px;
+    line-height: 1.4;
+}
+.kiwi-quiz-choices {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    display: grid;
+    gap: 12px;
+}
+.kiwi-quiz-choice {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f4f7ff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, border 0.15s ease, background 0.15s ease;
+}
+.kiwi-quiz-choice--selected {
+    background: rgba(255, 159, 28, 0.25);
+    border-color: rgba(255, 191, 105, 0.8);
+}
+.kiwi-quiz-choice:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.kiwi-quiz-answer {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+.kiwi-quiz-answer input {
+    flex: 1 1 auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 14px;
+    background: rgba(20, 28, 42, 0.7);
+    color: inherit;
+}
+.kiwi-quiz-primary {
+    background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+    border: none;
+    border-radius: 14px;
+    padding: 10px 18px;
+    font-weight: 700;
+    color: #0b0d17;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+.kiwi-quiz-primary:disabled {
+    filter: grayscale(0.4);
+    cursor: not-allowed;
+}
+.kiwi-quiz-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 10px 18px;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.kiwi-quiz-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.kiwi-quiz-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+.kiwi-quiz-result {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 14px;
+}
+.kiwi-quiz-result--success {
+    background: rgba(56, 193, 114, 0.2);
+    color: #8adab4;
+}
+.kiwi-quiz-result--error {
+    background: rgba(221, 77, 96, 0.18);
+    color: #f1a7b5;
+}
+.kiwi-quiz-result-answer {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+.kiwi-quiz-scoreboard {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+.kiwi-quiz-scoreboard li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(17, 24, 37, 0.65);
+}
+.kiwi-quiz-player-self {
+    background: rgba(255, 159, 28, 0.22) !important;
+    color: #ffe8c7;
+}
+.kiwi-quiz-player-name {
+    font-weight: 600;
+}
+.kiwi-quiz-player-score {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+.kiwi-quiz-info {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.72);
+}
+.kiwi-quiz-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+.kiwi-quiz-field input {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 14px;
+    background: rgba(20, 28, 42, 0.7);
+    color: inherit;
+}
+@media (max-width: 960px) {
+    .kiwi-quiz-layout {
+        flex-direction: column;
+    }
+    .kiwi-quiz-sidebar {
+        order: -1;
+    }
+}
+</style>
+
+<script>
+(function() {
+    const namespace = 'plugin-quiz';
+    const storageKey = 'kiwi-quiz-display-name';
+    kiwi.plugin('quiz', function(kiwi, log) {
+        const defaultConfig = {
+            endpoint: 'ws://localhost:4201/ws/quiz'
+        };
+        kiwi.setConfigDefaults(namespace, defaultConfig);
+        const getSetting = (key, fallback) => {
+            let value;
+            try {
+                value = kiwi.state.getSetting(`settings.${namespace}.${key}`);
+            } catch (err) {
+                value = undefined;
+            }
+            if (typeof value === 'undefined' || value === null || value === '') {
+                return fallback;
+            }
+            return value;
+        };
+        const persistName = (name) => {
+            try {
+                window.localStorage.setItem(storageKey, name);
+            } catch (err) {
+            }
+        };
+        const loadName = () => {
+            try {
+                return window.localStorage.getItem(storageKey) || '';
+            } catch (err) {
+                return '';
+            }
+        };
+        const endpoint = getSetting('endpoint', defaultConfig.endpoint);
+        const QuizView = kiwi.Vue.extend({
+            name: 'KiwiQuizOverlay',
+            template: `
+<div class="kiwi-quiz-overlay">
+    <div class="kiwi-quiz-header">
+        <div class="kiwi-quiz-title">
+            <h2>Quiz Évènement</h2>
+            <span v-if="countdown > 0" class="kiwi-quiz-timer">{{ countdown }}s</span>
+        </div>
+        <button type="button" class="kiwi-quiz-close" @click="closeView">Fermer</button>
+    </div>
+    <div v-if="banner" class="kiwi-quiz-banner">{{ banner }}</div>
+    <div class="kiwi-quiz-layout">
+        <section class="kiwi-quiz-main">
+            <div v-if="!connected" class="kiwi-quiz-card kiwi-quiz-card--status">
+                <p>Connexion au serveur de quiz...</p>
+            </div>
+            <div v-else-if="!isJoined" class="kiwi-quiz-card kiwi-quiz-card--join">
+                <label class="kiwi-quiz-field">
+                    <span>Pseudo</span>
+                    <input type="text" v-model="displayName" placeholder="Votre pseudo sur IRC" />
+                </label>
+                <button type="button" class="kiwi-quiz-primary" @click="joinGame" :disabled="joinPending">Rejoindre</button>
+            </div>
+            <div v-else class="kiwi-quiz-card kiwi-quiz-card--game">
+                <div class="kiwi-quiz-phase">{{ phaseLabel }}</div>
+                <div v-if="question" class="kiwi-quiz-question">
+                    <h3>{{ question.prompt }}</h3>
+                    <ul v-if="questionChoices.length" class="kiwi-quiz-choices">
+                        <li v-for="choice in questionChoices" :key="choice.value">
+                            <button
+                                type="button"
+                                class="kiwi-quiz-choice"
+                                :class="{ 'kiwi-quiz-choice--selected': selectedChoice === choice.value }"
+                                @click="selectChoice(choice.value)"
+                                :disabled="!isJoined"
+                            >
+                                <span class="kiwi-quiz-choice-label">{{ choice.label }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                    <form v-else class="kiwi-quiz-answer" @submit.prevent="submitAnswer">
+                        <input
+                            type="text"
+                            v-model="pendingAnswer"
+                            placeholder="Saisissez votre réponse"
+                            :disabled="!canAnswer"
+                        />
+                        <button type="submit" class="kiwi-quiz-primary" :disabled="!canSubmitText">Envoyer</button>
+                    </form>
+                </div>
+                <div v-else class="kiwi-quiz-question">
+                    <p>Aucune question active pour le moment.</p>
+                </div>
+                <div class="kiwi-quiz-actions">
+                    <button type="button" class="kiwi-quiz-secondary" @click="buzz" :disabled="!canBuzz">Buzzer</button>
+                    <button type="button" class="kiwi-quiz-secondary" @click="resetAnswer" :disabled="!canResetAnswer">Effacer</button>
+                </div>
+                <div v-if="lastResult" class="kiwi-quiz-result" :class="resultClass">
+                    <p v-if="lastResult.correct">
+                        {{ lastResult.playerName || 'Participant' }} marque {{ lastResult.points }} points.
+                    </p>
+                    <p v-else>
+                        {{ lastResult.message }}
+                    </p>
+                    <p class="kiwi-quiz-result-answer">
+                        Réponse attendue : {{ lastResult.expectedAnswer }}
+                    </p>
+                </div>
+            </div>
+        </section>
+        <aside class="kiwi-quiz-sidebar">
+            <h3>Classement</h3>
+            <ul class="kiwi-quiz-scoreboard">
+                <li
+                    v-for="player in sortedPlayers"
+                    :key="player.id"
+                    :class="{ 'kiwi-quiz-player-self': player.id === clientId }"
+                >
+                    <span class="kiwi-quiz-player-name">{{ player.name }}</span>
+                    <span class="kiwi-quiz-player-score">{{ player.score }}</span>
+                </li>
+            </ul>
+            <div class="kiwi-quiz-info">
+                <p v-if="isBuzzingSelf">À vous de répondre !</p>
+                <p v-else-if="buzzedByLabel">Buzzer : {{ buzzedByLabel }}</p>
+                <p v-else-if="phase === 'question'">Soyez prêt à buzzer.</p>
+                <p v-else>En attente de la prochaine manche.</p>
+            </div>
+        </aside>
+    </div>
+</div>
+            `,
+            data() {
+                return {
+                    wsUrl: endpoint,
+                    socket: null,
+                    connected: false,
+                    connecting: false,
+                    connectionAttempts: 0,
+                    retryTimer: null,
+                    clientId: null,
+                    players: [],
+                    phase: 'idle',
+                    countdown: 0,
+                    question: null,
+                    buzzedBy: null,
+                    lastResult: null,
+                    displayName: loadName(),
+                    pendingAnswer: '',
+                    selectedChoice: '',
+                    banner: '',
+                    autoJoin: false,
+                    joinPending: false,
+                    toastTimer: null
+                };
+            },
+            computed: {
+                isJoined() {
+                    return this.players.some((player) => player.id === this.clientId);
+                },
+                selfPlayer() {
+                    const player = this.players.find((entry) => entry.id === this.clientId);
+                    return player || null;
+                },
+                sortedPlayers() {
+                    return this.players.slice().sort((a, b) => {
+                        if (b.score !== a.score) {
+                            return b.score - a.score;
+                        }
+                        return a.name.localeCompare(b.name);
+                    });
+                },
+                phaseLabel() {
+                    if (this.phase === 'question') {
+                        return 'Question en cours';
+                    }
+                    if (this.phase === 'answer') {
+                        return 'Réponse en cours';
+                    }
+                    if (this.phase === 'summary') {
+                        return 'Résultat';
+                    }
+                    return 'En attente';
+                },
+                questionChoices() {
+                    if (this.question && Array.isArray(this.question.choices)) {
+                        return this.question.choices;
+                    }
+                    return [];
+                },
+                canBuzz() {
+                    if (!this.connected) {
+                        return false;
+                    }
+                    if (!this.isJoined) {
+                        return false;
+                    }
+                    if (this.phase !== 'question') {
+                        return false;
+                    }
+                    if (this.buzzedBy && this.buzzedBy !== this.clientId) {
+                        return false;
+                    }
+                    return true;
+                },
+                canAnswer() {
+                    return this.connected && this.isJoined && this.phase === 'answer' && this.buzzedBy === this.clientId;
+                },
+                canSubmitText() {
+                    if (!this.canAnswer) {
+                        return false;
+                    }
+                    return this.pendingAnswer.trim().length > 0;
+                },
+                canResetAnswer() {
+                    if (!this.canAnswer) {
+                        return false;
+                    }
+                    if (this.pendingAnswer.trim().length > 0) {
+                        return true;
+                    }
+                    return this.selectedChoice !== '';
+                },
+                buzzedByLabel() {
+                    if (!this.buzzedBy) {
+                        return '';
+                    }
+                    const player = this.players.find((entry) => entry.id === this.buzzedBy);
+                    if (!player) {
+                        return '';
+                    }
+                    return player.name;
+                },
+                isBuzzingSelf() {
+                    return this.canAnswer;
+                },
+                resultClass() {
+                    if (!this.lastResult) {
+                        return '';
+                    }
+                    if (this.lastResult.correct) {
+                        return 'kiwi-quiz-result--success';
+                    }
+                    return 'kiwi-quiz-result--error';
+                }
+            },
+            watch: {
+                phase(newValue, oldValue) {
+                    if (newValue !== 'answer') {
+                        this.pendingAnswer = '';
+                        this.selectedChoice = '';
+                    }
+                    if (newValue === 'answer' && oldValue !== 'answer' && this.selectedChoice && this.canAnswer) {
+                        this.sendAnswer(this.selectedChoice);
+                    }
+                },
+                lastResult(newValue) {
+                    if (this.toastTimer) {
+                        clearTimeout(this.toastTimer);
+                        this.toastTimer = null;
+                    }
+                    if (!newValue) {
+                        return;
+                    }
+                    if (newValue.toast) {
+                        this.banner = newValue.toast;
+                        this.toastTimer = setTimeout(() => {
+                            this.banner = '';
+                            this.toastTimer = null;
+                        }, 3500);
+                    }
+                },
+                canAnswer(newValue) {
+                    if (newValue && this.selectedChoice) {
+                        this.sendAnswer(this.selectedChoice);
+                    }
+                }
+            },
+            created() {
+                this.connect();
+            },
+            beforeDestroy() {
+                if (this.socket) {
+                    this.socket.close();
+                }
+                if (this.retryTimer) {
+                    clearTimeout(this.retryTimer);
+                    this.retryTimer = null;
+                }
+                if (this.toastTimer) {
+                    clearTimeout(this.toastTimer);
+                    this.toastTimer = null;
+                }
+            },
+            methods: {
+                connect() {
+                    if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
+                        return;
+                    }
+                    this.connecting = true;
+                    const socket = new WebSocket(this.wsUrl);
+                    this.socket = socket;
+                    socket.addEventListener('open', (event) => this.onOpen(event));
+                    socket.addEventListener('message', (event) => this.onMessage(event));
+                    socket.addEventListener('close', (event) => this.onClose(event));
+                    socket.addEventListener('error', (event) => this.onError(event));
+                },
+                onOpen() {
+                    this.connecting = false;
+                    this.connected = true;
+                    this.connectionAttempts = 0;
+                    this.banner = '';
+                    if (this.autoJoin && this.displayName.trim().length > 0) {
+                        this.sendAction('join', { name: this.displayName.trim() });
+                    }
+                },
+                onMessage(event) {
+                    let payload;
+                    try {
+                        payload = JSON.parse(event.data);
+                    } catch (err) {
+                        log.error('Paquet JSON invalide depuis le serveur de quiz');
+                        return;
+                    }
+                    if (!payload || typeof payload.type !== 'string') {
+                        return;
+                    }
+                    if (payload.type === 'hello') {
+                        if (payload.payload && payload.payload.clientId) {
+                            this.clientId = payload.payload.clientId;
+                        }
+                    } else if (payload.type === 'state') {
+                        if (payload.payload) {
+                            this.applyState(payload.payload);
+                        }
+                    } else if (payload.type === 'toast') {
+                        if (payload.payload && payload.payload.message) {
+                            this.banner = payload.payload.message;
+                        }
+                    }
+                },
+                onClose(event) {
+                    if (this.socket === event.target) {
+                        this.socket = null;
+                    }
+                    this.connected = false;
+                    this.connecting = false;
+                    this.scheduleReconnect();
+                },
+                onError(event) {
+                    if (this.socket === event.target) {
+                        this.socket = null;
+                    }
+                    this.connected = false;
+                    this.connecting = false;
+                    this.scheduleReconnect();
+                },
+                scheduleReconnect() {
+                    if (this.retryTimer) {
+                        return;
+                    }
+                    this.connectionAttempts += 1;
+                    const wait = Math.min(30000, 1000 * this.connectionAttempts);
+                    this.banner = 'Reconnexion au serveur de quiz...';
+                    this.retryTimer = setTimeout(() => {
+                        this.retryTimer = null;
+                        this.connect();
+                    }, wait);
+                },
+                applyState(state) {
+                    if (Array.isArray(state.players)) {
+                        this.players = state.players.map((entry) => Object.assign({}, entry));
+                    } else {
+                        this.players = [];
+                    }
+                    this.phase = state.phase || 'idle';
+                    if (typeof state.countdown === 'number') {
+                        this.countdown = state.countdown;
+                    } else {
+                        this.countdown = 0;
+                    }
+                    this.buzzedBy = state.buzzedBy || null;
+                    this.lastResult = state.lastResult ? Object.assign({}, state.lastResult) : null;
+                    this.question = state.question ? Object.assign({}, state.question) : null;
+                    const joined = this.isJoined;
+                    if (joined) {
+                        this.joinPending = false;
+                        this.autoJoin = true;
+                    } else if (this.autoJoin && this.connected && !this.joinPending && this.displayName.trim().length > 0) {
+                        this.joinPending = true;
+                        this.sendAction('join', { name: this.displayName.trim() });
+                    }
+                },
+                joinGame() {
+                    const trimmed = this.displayName.trim();
+                    if (!trimmed) {
+                        this.banner = 'Choisissez un pseudo avant de rejoindre.';
+                        return;
+                    }
+                    persistName(trimmed);
+                    this.autoJoin = true;
+                    this.joinPending = true;
+                    this.sendAction('join', { name: trimmed });
+                },
+                buzz() {
+                    if (!this.canBuzz) {
+                        return;
+                    }
+                    this.sendAction('buzz', {});
+                },
+                selectChoice(value) {
+                    this.selectedChoice = value;
+                    if (this.canAnswer) {
+                        this.sendAnswer(value);
+                    }
+                },
+                submitAnswer() {
+                    if (!this.canSubmitText) {
+                        return;
+                    }
+                    const answer = this.pendingAnswer.trim();
+                    this.sendAnswer(answer);
+                    this.pendingAnswer = '';
+                },
+                sendAnswer(answer) {
+                    if (!this.canAnswer) {
+                        return;
+                    }
+                    if (!answer) {
+                        return;
+                    }
+                    this.sendAction('answer', { answer: answer });
+                },
+                resetAnswer() {
+                    if (!this.canResetAnswer) {
+                        return;
+                    }
+                    this.pendingAnswer = '';
+                    this.selectedChoice = '';
+                },
+                closeView() {
+                    kiwi.showView(null);
+                },
+                sendAction(type, payload) {
+                    const body = {
+                        type: type,
+                        payload: payload || {}
+                    };
+                    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+                        return;
+                    }
+                    this.socket.send(JSON.stringify(body));
+                }
+            }
+        });
+        const ToggleButton = kiwi.Vue.extend({
+            name: 'KiwiQuizToggle',
+            props: {
+                label: {
+                    type: String,
+                    default: 'Quiz'
+                }
+            },
+            template: `
+<button class="kiwi-quiz-toggle" type="button" @click="openQuiz">
+    {{ label }}
+</button>
+            `,
+            methods: {
+                openQuiz() {
+                    kiwi.showView('quiz-overlay');
+                }
+            }
+        });
+        const QueryToggle = kiwi.Vue.extend({
+            name: 'KiwiQuizQueryToggle',
+            props: {
+                label: {
+                    type: String,
+                    default: 'Quiz'
+                }
+            },
+            template: `
+<button class="kiwi-quiz-toggle" type="button" @click="openQuiz">
+    {{ label }}
+</button>
+            `,
+            methods: {
+                openQuiz() {
+                    kiwi.showView('quiz-overlay');
+                }
+            }
+        });
+        kiwi.addView('quiz-overlay', QuizView);
+        kiwi.addUi('header_channel', ToggleButton, { props: { label: 'Quiz' } });
+        kiwi.addUi('header_query', QueryToggle, { props: { label: 'Quiz' } });
+    });
+})();
+</script>
