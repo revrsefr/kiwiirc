@@ -60,6 +60,14 @@ export function create(state, network) {
             Object.assign(ircClient.options, configOptions);
         }
 
+        // Default to SASL PLAIN for KiwiIRC webchat connections.
+        // SCRAM-SHA-256 is supported by irc-framework and can be enabled
+        // via ircFramework.sasl_mechanism config if desired.
+        // SCRAM-SHA-256 verifier caching benefits desktop clients that support SCRAM.
+        if (!ircClient.options.sasl_mechanism) {
+            ircClient.options.sasl_mechanism = 'PLAIN';
+        }
+
         let eventObj = { network, transport: null };
         state.$emit('network.connecting', eventObj);
 
