@@ -10,6 +10,16 @@ import * as TextFormatting from '@/helpers/TextFormatting';
 import { urlRegex } from './TextFormatting';
 
 const strftimeUTC = strftime.timezone('+0');
+const styleStripRegexp = new RegExp(
+    // Decimal Colours
+    /(\x03(\u200B|[0-9]{1,2})(\u200B|,[0-9]{1,2})?|\x03)|/.source +
+    // Hex Colours
+    /(\x04(\u200B|[0-9a-fA-F]{6})(\u200B|,[0-9a-fA-F]{6})?|\x04)|/.source +
+    // Styles
+    /[\x02\x1d\x1f\x1e\x11\x16\x0f]/.source,
+    'g'
+);
+
 /**
  * Extract an array of buffers from a string, parsing multiple buffer names and channel keys
  * "#chan,#chan2" => 2 channels without a key
@@ -46,7 +56,7 @@ export function extractURL(str) {
 }
 
 export function stripStyles(str) {
-    return str.replace(/(\x03[0-9]{0,2})?([\x02\x16\x1d\x1f]+)?/g, '');
+    return str.replace(styleStripRegexp, '');
 }
 
 /**
@@ -337,19 +347,23 @@ export function connectionToUri(conn) {
  * Scan though an object and extend any dot notated keys
  * @param {Object} confObj Source object to traverse
  */
-export function dedotObject(confObj, _place) {
-    let place = _place || [];
-    let regex = /\w\.\w/;
+export function dedotObject(confObj) {
+    if (_.isArray(confObj)) {
+        return;
+    }
 
     _.each(confObj, (val, key) => {
-        let ourPlace = place.concat([key]);
-        if (typeof val === 'object') {
-            dedotObject(confObj[key], ourPlace);
-            return;
+        if (typeof key === 'string' && key.includes('.')) {
+            const path = key.split('.').filter(Boolean);
+            if (path.length > 1) {
+                delete confObj[key];
+                _.set(confObj, path, val);
+                return;
+            }
         }
-        if (regex.test(key)) {
-            delete confObj[key];
-            _.set(confObj, ourPlace.join('.'), val);
+
+        if (_.isPlainObject(val)) {
+            dedotObject(val);
         }
     });
 }
